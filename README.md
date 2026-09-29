@@ -1,6 +1,6 @@
 # OCR con IA desde Google Colab
 
-OCR de PDFs con **PaddleOCR-VL**, corriendo gratis en Google Colab. Funciona bien con tablas y soporta español.
+OCR de PDFs con **PaddleOCR-VL-1.5**, corriendo gratis en Google Colab. Funciona bien con tablas y soporta español.
 
 [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/NikoSwami/orc-con-ia-desde-google-colab/blob/main/OCR_con_IA.ipynb)
 
@@ -45,13 +45,16 @@ Ocupa unos 4 GB en tu Drive. Conviene si vas a usarlo seguido.
 
 ## El modelo
 
-[`PaddlePaddle/PaddleOCR-VL`](https://huggingface.co/PaddlePaddle/PaddleOCR-VL) — 0.9B parámetros, encoder visual NaViT + ERNIE-4.5-0.3B.
+[`PaddlePaddle/PaddleOCR-VL-1.5`](https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.5) — 0.9B parámetros, encoder visual NaViT + ERNIE-4.5-0.3B.
 
+- **94.5% en OmniDocBench v1.5**
 - 109 idiomas, español nativo
-- Tablas, fórmulas y gráficos como tareas propias
+- Tablas, fórmulas, gráficos, sellos y text spotting como tareas propias
 - Menos de 1 GB de VRAM en reposo, ~2.5 GB de pico
 
 Es chico a propósito: entra en una placa de 4 GB, así que si después querés bajarlo a tu máquina, corre.
+
+Se selecciona con `pipeline_version='v1.5'` en la celda 3. Ya existe una **1.6**; para usarla, cambiá ese valor.
 
 ## Opciones
 
@@ -68,6 +71,8 @@ Es chico a propósito: entra en una placa de 4 GB, así que si después querés 
 **Un PDF rompe el proceso.** No corta el lote. Se anota el error y sigue con el siguiente.
 
 **Las descargas múltiples no llegan.** Los navegadores bloquean descargas seguidas. Con más de un PDF, el notebook baja un zip único.
+
+**Cambiaste de versión del modelo y sigue usando la vieja.** Con `USAR_DRIVE = True`, borrá `MyDrive/ocr_ia/paquetes/.ok` para que reinstale.
 
 ## Licencia
 
