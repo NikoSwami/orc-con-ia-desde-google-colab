@@ -1,0 +1,3 @@
+paddlepaddle>=3.0.0
+paddleocr[doc-parser]>=3.4.0
+pypdf

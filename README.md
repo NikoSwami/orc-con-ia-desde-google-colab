@@ -56,7 +56,64 @@ Es chico a propósito: entra en una placa de 4 GB, así que si después querés 
 
 Se selecciona con `pipeline_version='v1.5'` en la celda 3. Ya existe una **1.6**; para usarla, cambiá ese valor.
 
-## Opciones
+## Correrlo en tu PC
+
+En `local/` hay un script de linea de comandos con el mismo modelo, sin Colab.
+
+### Instalar
+
+Windows:
+
+```powershell
+cd local
+.\instalar.ps1
+```
+
+Linux o macOS:
+
+```bash
+cd local
+bash instalar.sh
+```
+
+Sin GPU, agregale `-Cpu` en Windows o `--cpu` en Linux/macOS.
+
+Requiere Python 3.9 a 3.13 (64 bits). El script crea un entorno virtual en
+`local/.venv` e instala todo ahi.
+
+### Usar
+
+```bash
+python ocr_local.py mis_pdfs/
+```
+
+Acepta archivos sueltos, carpetas y comodines. Por cada entrada deja un
+`<nombre>_ocr.md` en la carpeta de salida, y al final imprime una tabla con
+tiempo, caracteres y filas de tabla de cada uno.
+
+| Opcion | Que hace |
+|---|---|
+| `-s`, `--salida` | Carpeta de resultados. Por defecto `salida_ocr` |
+| `-p`, `--paginas` | Maximo de paginas por PDF. `0` = todas |
+| `-v`, `--version` | Version del pipeline: `v1`, `v1.5`, `v1.6` |
+| `-d`, `--dispositivo` | Forzar `gpu` o `cpu` |
+| `-r`, `--recursivo` | Entrar en subcarpetas |
+| `--json` | Guardar tambien el JSON de layout |
+
+Ejemplos:
+
+```bash
+python ocr_local.py escaneos/ -r -s resultados
+python ocr_local.py boletin.pdf -p 3
+python ocr_local.py "facturas/*.pdf" -d cpu
+```
+
+Si un archivo falla, se anota y sigue con el siguiente. El script termina con
+codigo 1 si hubo algun error, asi se puede encadenar en un script mayor.
+
+Formatos que acepta: `.pdf`, `.png`, `.jpg`, `.jpeg`, `.tif`, `.tiff`, `.bmp`, `.webp`.
+
+## Opciones del notebook
 
 | Variable | Celda | Qué hace |
 |---|---|---|
