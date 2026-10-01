@@ -8,6 +8,8 @@ import os
 import sys
 import time
 
+import a_markdown
+
 EXTENSIONES = ('.pdf', '.png', '.jpg', '.jpeg', '.tif', '.tiff', '.bmp', '.webp')
 
 
@@ -68,7 +70,8 @@ def cargar_pipeline(version, dispositivo):
     raise ultimo
 
 
-def consolidar(carpeta, ruta_original, version, destino_md):
+def consolidar(carpeta, ruta_original, version, destino_md,
+               formato='md', imagenes=True):
     piezas = sorted(glob.glob(os.path.join(carpeta, '**', '*.md'), recursive=True))
     if not piezas:
         return None, 0, 0
@@ -82,12 +85,19 @@ def consolidar(carpeta, ruta_original, version, destino_md):
         '---',
         '',
     ]
-    cuerpo = [open(p, encoding='utf-8').read().strip() for p in piezas]
+    base_destino = os.path.dirname(os.path.abspath(destino_md))
+    cuerpo = []
+    for pieza in piezas:
+        trozo = open(pieza, encoding='utf-8').read().strip()
+        if formato == 'md':
+            trozo = a_markdown.reubicar_imagenes(
+                trozo, os.path.dirname(os.path.abspath(pieza)), base_destino)
+            trozo = a_markdown.a_markdown(trozo, imagenes)
+        cuerpo.append(trozo)
     texto = '\n'.join(cabecera + cuerpo)
     with open(destino_md, 'w', encoding='utf-8') as f:
         f.write(texto)
-    filas = sum(1 for l in texto.splitlines() if l.strip().startswith('|'))
-    return destino_md, len(texto), filas
+    return destino_md, len(texto), a_markdown.contar_filas(texto)
 
 
 def main():
@@ -105,6 +115,11 @@ def main():
                         help='Forzar GPU o CPU. Por defecto lo decide Paddle.')
     parser.add_argument('-r', '--recursivo', action='store_true',
                         help='Entrar en subcarpetas.')
+    parser.add_argument('-f', '--formato', choices=['md', 'crudo'], default='md',
+                        help='md = Markdown puro (tablas de pipes, sin HTML). '
+                             'crudo = tal cual lo devuelve el modelo.')
+    parser.add_argument('--sin-imagenes', action='store_true',
+                        help='Quitar los recortes de imagen del .md final.')
     parser.add_argument('--json', action='store_true',
                         help='Guardar tambien el JSON de layout.')
     args = parser.parse_args()
@@ -116,6 +131,7 @@ def main():
 
     os.makedirs(args.salida, exist_ok=True)
     print(f'Archivos a procesar: {len(rutas)}')
+    print(f'Formato de salida: {args.formato}')
     print(f'Cargando PaddleOCR-VL {args.version}...')
 
     inicio_carga = time.time()
@@ -144,7 +160,8 @@ def main():
             duracion = time.time() - t0
 
             destino_md = os.path.join(args.salida, base + '_ocr.md')
-            md, chars, filas = consolidar(carpeta, ruta, args.version, destino_md)
+            md, chars, filas = consolidar(carpeta, ruta, args.version, destino_md,
+                                          args.formato, not args.sin_imagenes)
             if md is None:
                 raise RuntimeError('el modelo no devolvio texto')
 

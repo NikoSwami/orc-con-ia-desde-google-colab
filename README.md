@@ -14,6 +14,22 @@ OCR de PDFs con **PaddleOCR-VL-1.5**, corriendo gratis en Google Colab. Funciona
 
 El resultado sale en Markdown, con las tablas ya armadas.
 
+## Formato de salida
+
+El modelo devuelve las tablas como bloques `<table><tr><td>` y deja `<div>` y
+`<br>` sueltos. Eso no es Markdown, es HTML dentro de un `.md`.
+
+| Valor | Que sale |
+|---|---|
+| `md` (por defecto) | Markdown puro: tablas de pipes, sin HTML, entidades ya resueltas (`N&deg;` queda `N°`) |
+| `crudo` | La salida del modelo tal cual, con las tablas en HTML |
+
+En el notebook se elige con `FORMATO` en la celda 1. En el script local, con
+`-f md` o `-f crudo`.
+
+Con `md` los `![](imgs/...)` tambien se reescriben para que apunten bien desde
+el archivo final, que queda un nivel arriba de donde el modelo dejo los recortes.
+
 ## Las dos formas de usarlo
 
 En la celda 1 hay una sola opción que cambiar:
@@ -59,6 +75,7 @@ Se selecciona con `pipeline_version='v1.5'` en la celda 3. Ya existe una **1.6**
 ## Correrlo en tu PC
 
 En `local/` hay un script de linea de comandos con el mismo modelo, sin Colab.
+La conversion a Markdown vive aparte, en `local/a_markdown.py`.
 
 ### Instalar
 
@@ -98,6 +115,8 @@ tiempo, caracteres y filas de tabla de cada uno.
 | `-v`, `--version` | Version del pipeline: `v1`, `v1.5`, `v1.6` |
 | `-d`, `--dispositivo` | Forzar `gpu` o `cpu` |
 | `-r`, `--recursivo` | Entrar en subcarpetas |
+| `-f`, `--formato` | `md` (por defecto) o `crudo`. Ver arriba |
+| `--sin-imagenes` | Quitar los recortes de imagen del `.md` final |
 | `--json` | Guardar tambien el JSON de layout |
 
 Ejemplos:
@@ -106,6 +125,8 @@ Ejemplos:
 python ocr_local.py escaneos/ -r -s resultados
 python ocr_local.py boletin.pdf -p 3
 python ocr_local.py "facturas/*.pdf" -d cpu
+python ocr_local.py acta.pdf -f crudo
+python ocr_local.py acta.pdf --sin-imagenes
 ```
 
 Si un archivo falla, se anota y sigue con el siguiente. El script termina con
@@ -120,6 +141,7 @@ Formatos que acepta: `.pdf`, `.png`, `.jpg`, `.jpeg`, `.tif`, `.tiff`, `.bmp`, `
 | `USAR_DRIVE` | 1 | Guardar en Drive o solo en la VM |
 | `CARPETA_DRIVE` | 1 | Dónde guardar dentro de tu Drive |
 | `PAGINAS_MAX` | 1 | Páginas por PDF. `0` procesa el documento completo |
+| `FORMATO` | 1 | `md` o `crudo` |
 
 ## Problemas conocidos
 
